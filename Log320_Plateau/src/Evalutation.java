@@ -71,6 +71,62 @@ public class Evalutation {
         return bestScore;
     }
 
+
+    public ArrayList<Move> getNextMoveMinMax(SubBoard subBoard)
+    {
+        numExploredNodes = 0;
+        ArrayList<Move> moves = new ArrayList<>();
+        int max = WORSE_SCORE;
+        for(int i = 0; i < 3; i++) {
+            for(int j = 0; j < 3; j++) {
+                Move move = new Move(i,j);
+                if (subBoard.getValueAt(i, j) == Piece.EMPTY) {
+                    subBoard.play(move, cpuMark);
+                    int ret = minMax(subBoard, cpuMark == Piece.O ? Piece.X : Piece.O);
+                    subBoard.play(move, Piece.EMPTY);
+                    if (ret == max) {
+                        moves.add(move);
+                    } else if(ret > max) {
+                        moves.clear();
+                        moves.add(move);
+                        max = ret;
+                    }
+                }
+            }
+        }
+        //System.out.println(max);
+        return moves;
+
+    }
+
+    private int minMax(SubBoard subBoard, Piece player) {
+
+        int currentScore = subBoard.evaluate(player);
+        if(currentScore !=  0 || subBoard.checkIfBoardFull())
+            return currentScore;
+
+        int max = player==cpuMark?WORSE_SCORE : BEST_SCORE;
+        for(int i = 0; i < 3; i++) {
+            for(int j = 0; j < 3; j++) {
+
+                Move move = new Move(i,j);
+                if(subBoard.getValueAt(i, j) == Piece.EMPTY) {
+                    subBoard.play(move, player);
+
+                    if (player == cpuMark)
+                        max = Math.max(max, minMax(subBoard, player == Piece.X ? Piece.O : Piece.X));
+                    else
+                        max = Math.min(max, minMax(subBoard, player == Piece.X ? Piece.O : Piece.X));
+
+                    subBoard.play(move, Piece.EMPTY);
+                }
+            }
+        }
+        return max;
+    }
+
+
+
     //method to get the best move
     private int getBestMoveValue(int bestMoveValue, ArrayList<Move> bestMovesList, int i, int j, int moveValue) {
         if (moveValue > bestMoveValue) {

@@ -9,6 +9,13 @@ class Client {
         BufferedOutputStream output;
         int[][] board = new int[9][9];
 
+        //what am I doing???
+        SubBoard[][] subBoard = {{new SubBoard(), new SubBoard(), new SubBoard()}, {new SubBoard(), new SubBoard(), new SubBoard()}, {new SubBoard(), new SubBoard(), new SubBoard()}};
+        Piece player = Piece.EMPTY;
+        Piece other = Piece.EMPTY;
+        String prevMove = "";
+        displayBoard(subBoard);
+
         try {
             MyClient = new Socket("localhost", 8888);
 
@@ -23,6 +30,9 @@ class Client {
                 // Debut de la partie en joueur blanc
                 if(cmd == '1'){
                     byte[] aBuffer = new byte[1024];
+
+                    other = Piece.O;
+                    player = Piece.X;
 
                     int size = input.available();
                     //System.out.println("size " + size);
@@ -44,6 +54,10 @@ class Client {
                     System.out.println("Nouvelle partie! Vous jouer blanc, entrez votre premier coup : ");
                     String move = null;
                     move = console.readLine();
+
+                    prevMove = move;
+                    addMoveToBoard(move, player, subBoard);
+
                     output.write(move.getBytes(),0,move.length());
                     output.flush();
                 }
@@ -52,11 +66,18 @@ class Client {
                     System.out.println("Nouvelle partie! Vous jouer noir, attendez le coup des blancs");
                     byte[] aBuffer = new byte[1024];
 
+                    other = Piece.X;
+                    player = Piece.O;
+
                     int size = input.available();
                     //System.out.println("size " + size);
                     input.read(aBuffer,0,size);
                     String s = new String(aBuffer).trim();
+
                     System.out.println(s);
+
+                    addMoveToBoard(s.trim(),other, subBoard);
+
                     String[] boardValues;
                     boardValues = s.split(" ");
                     int x=0,y=0;
@@ -83,17 +104,30 @@ class Client {
                     String s = new String(aBuffer);
                     System.out.println("Dernier coup :"+ s);
                     System.out.println("Entrez votre coup : ");
+
+                    addMoveToBoard(s.trim(),other,subBoard);
+
                     String move = null;
                     move = console.readLine();
+
+                    addMoveToBoard(move, player, subBoard);
+                    prevMove = move;
+
                     output.write(move.getBytes(),0,move.length());
                     output.flush();
 
                 }
                 // Le dernier coup est invalide
                 if(cmd == '4'){
+
                     System.out.println("Coup invalide, entrez un nouveau coup : ");
                     String move = null;
                     move = console.readLine();
+
+                    addMoveToBoard(prevMove, Piece.EMPTY, subBoard);
+                    addMoveToBoard(move, player, subBoard);
+                    prevMove = move;
+
                     output.write(move.getBytes(),0,move.length());
                     output.flush();
 
@@ -118,5 +152,63 @@ class Client {
             System.out.println(e);
         }
 
+    }
+
+    public static void addMoveToBoard(String move, Piece piece, SubBoard[][] board) {
+        //on oublie pas de substract le ascii
+        char c0 = move.charAt(0);
+        char c1 = move.charAt(1);
+        int row = (((int)c1)-49);
+        int col = (((int)c0)-65);
+        int bX, bY;
+        if('A' <= c0 && c0 <= 'C')
+            bX = 0;
+        else if('D' <= c0 && c0 <= 'F')
+            bX = 1;
+        else
+            bX = 2;
+
+        if('1' <= c1 && c1 <= '3')
+            bY = 2;
+        else if('4' <= c1 && c1 <='6')
+            bY = 1;
+        else
+            bY = 0;
+        System.out.println(row+", "+col);
+        board[bX][bY].setValueAt((8-row)%3, (col)%3, piece);
+        displayBoard(board);
+    }
+
+    public static void displayBoard(SubBoard[][] board) {
+        final String COLOR_DEFAULT = "\u001B[0m";
+        final String COLOR_RED = "\u001B[31m";
+        final String COLOR_BLUE = "\u001B[34m";
+
+        int offSetX;
+        int offSetY = 0;
+        for(int i = 0; i < board.length*board.length; i++) {
+            offSetX = 0;
+            if(i != 0 && i%3 == 0) {
+                System.out.println("\n---------┼---------┼---------");
+                offSetY++;
+            }
+            else
+                System.out.println();
+            for(int j = 0; j < board.length* board.length; j++) {
+                if (j != 0 && j % 3 == 0) {
+                    System.out.print("|");
+                    offSetX++;
+                }
+                //System.out.println(offSetX+", "+offSetY);
+                Piece p = board[offSetX][offSetY].getValueAt(i%3, j%3);
+
+                if(p == Piece.X)
+                    System.out.print(COLOR_RED);
+                else if(p == Piece.O)
+                    System.out.print(COLOR_BLUE);
+                System.out.print(" "+ (p==Piece.EMPTY?" ":p)+" ");
+                System.out.print(COLOR_DEFAULT);
+            }
+        }
     }
 }
