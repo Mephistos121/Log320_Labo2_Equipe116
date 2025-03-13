@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 
-public class Evalutation {
+public class SubBoardEvalutation {
 
     private int numExploredNodes;
     private final int BEST_SCORE = 100;
@@ -71,9 +71,7 @@ public class Evalutation {
         return bestScore;
     }
 
-
-    public ArrayList<Move> getNextMoveMinMax(SubBoard subBoard)
-    {
+    public ArrayList<Move> getNextMoveMinMax(SubBoard subBoard) {
         numExploredNodes = 0;
         ArrayList<Move> moves = new ArrayList<>();
         int max = WORSE_SCORE;
@@ -96,7 +94,6 @@ public class Evalutation {
         }
         //System.out.println(max);
         return moves;
-
     }
 
     private int minMax(SubBoard subBoard, Piece player) {
@@ -124,8 +121,6 @@ public class Evalutation {
         }
         return max;
     }
-
-
 
     //method to get the best move
     private int getBestMoveValue(int bestMoveValue, ArrayList<Move> bestMovesList, int i, int j, int moveValue) {
