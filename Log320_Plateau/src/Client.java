@@ -10,7 +10,10 @@ class Client {
         int[][] board = new int[9][9];
 
         //what am I doing???
-        SubBoard[][] subBoard = {{new SubBoard(), new SubBoard(), new SubBoard()}, {new SubBoard(), new SubBoard(), new SubBoard()}, {new SubBoard(), new SubBoard(), new SubBoard()}};
+        SubBoard[][] subBoard = {{new SubBoard(0,0), new SubBoard(0,1), new SubBoard(0,2)}
+                , {new SubBoard(1,0), new SubBoard(1,1), new SubBoard(1,2)},
+                {new SubBoard(2,0), new SubBoard(2,1), new SubBoard(2,2)}};
+
         Piece player = Piece.EMPTY;
         Piece other = Piece.EMPTY;
         String prevMove = "";

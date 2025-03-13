@@ -1,9 +1,15 @@
+import java.util.ArrayList;
+
 public class SubBoard {
     private Piece[][] subBoard;
     private boolean done;
     private Piece winner;
+    private int positionRow;
+    private int positionCol;
 
-    public SubBoard() {
+    public SubBoard(int row, int col) {
+        this.positionRow = row*3;
+        this.positionCol = col*3;
 
         this.done = false;
         this.winner = Piece.EMPTY;
@@ -82,8 +88,8 @@ public class SubBoard {
 
     //Check if the board is full, needed to know if a board is a tie
     public boolean checkIfBoardFull(){
-        for(int i = 0; i < subBoard.length; i++){
-            for(int j = 0; j < subBoard[0].length; j++){
+        for(int i = 0; i < 3; i++){
+            for(int j = 0; j < 3; j++){
                 if(subBoard[i][j].equals(Piece.EMPTY)){
                     return false;
                 }
@@ -124,6 +130,18 @@ public class SubBoard {
             }
             System.out.println();
         }
+    }
+
+    public ArrayList<Move> getAllPossibleMoves(){
+        ArrayList<Move> possibleMoves = new ArrayList<Move>();
+        for(int i = 0; i < subBoard.length; i++){
+            for(int j = 0; j < subBoard[0].length; j++){
+                if(subBoard[i][j] == Piece.EMPTY){
+                    possibleMoves.add(new Move(i+positionRow,j+positionCol));
+                }
+            }
+        }
+        return possibleMoves;
     }
 
     public Piece getWinner() {
