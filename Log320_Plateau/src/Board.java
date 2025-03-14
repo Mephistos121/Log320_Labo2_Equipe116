@@ -76,7 +76,6 @@ public class Board {
         return validMoves;
     }
 
-<<<<<<< HEAD
     public void displayBoard() {
         final String COLOR_DEFAULT = "\u001B[0m";
         final String COLOR_RED = "\u001B[31m";
@@ -109,8 +108,7 @@ public class Board {
             }
         }
     }
-=======
->>>>>>> 9d0eaccfb31e23b4a28393456959cc0eac1ca9b0
+
     public Piece isDone() {
         SubBoard wins = new SubBoard(1, 1);
         for(int i = 0; i < 3; i++) {
