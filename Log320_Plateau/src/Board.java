@@ -77,4 +77,19 @@ public class Board {
         }
         return validMoves;
     }
+
+    public Piece isDone() {
+        SubBoard wins = new SubBoard(1, 1);
+        for(int i = 0; i < 3; i++) {
+            for(int j = 0; j < 3; j++) {
+                if(boards[i][j].isDone())
+                    wins.play(new Move(i, j), boards[i][j].getWinner());
+                else if(boards[i][j].checkIfBoardFull())
+                    wins.play(new Move(i, j), Piece.TIE);
+                else
+                    wins.play(new Move(i, j), Piece.EMPTY);
+            }
+        }
+        return wins.getWinner();
+    }
 }
