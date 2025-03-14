@@ -20,6 +20,14 @@ public class Board {
     public SubBoard getSubBoard(int row, int col) {
         return boards[row][col];
     }
+    public void playMove(Move move, Piece piece) {
+        SubBoard subBoard = getSubBoardFromMove(move);
+        subBoard.play(move,piece);
+    }
+    public void undoMove(Move move) {
+        SubBoard subBoard = getSubBoardFromMove(move);
+        subBoard.play(move, Piece.EMPTY);
+    }
     private SubBoard getSubBoardFromMove(Move move) {
         return boards[move.getRow()/3][move.getCol()/3];
     }
@@ -30,16 +38,25 @@ public class Board {
 
     public ArrayList<Move> getValidMoves(Move lastMove) {
         ArrayList<Move> validMoves = new ArrayList<>();
+        System.out.println("Last move: " + lastMove);
 
         // If there were no previous moves, that means we are first and play center.
         if(lastMove != null) {
+            //See where we are forced to play
+            SubBoard subBoardForced = getSubBoard(lastMove.getRow()%3,lastMove.getCol()%3);
 
             //If we are sent to a sub Board that is done, we can play anywhere
-            if(getSubBoardFromMove(lastMove).isDone()){
-                validMoves.addAll(boards[lastMove.getRow()/3][lastMove.getRow()/3].getAllPossibleMoves());
+            if(subBoardForced.isDone()){
+                for (int i = 0; i < boards.length ; i++) {
+                    for (int j = 0; j < boards[i].length ; j++) {
+                        if(!boards[i][j].isDone()){
+                            validMoves.addAll(getSubBoard(i,j).getAllPossibleMoves());
+                        }
+                    }
+                }
             }else{
                 //We need to play on that specific board instead.
-                validMoves.addAll(boards[lastMove.getRow()/3][lastMove.getRow()/3].getAllPossibleMoves());
+                validMoves.addAll(subBoardForced.getAllPossibleMoves());
             }
 
         }else{

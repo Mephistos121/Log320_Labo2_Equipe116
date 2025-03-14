@@ -1,5 +1,8 @@
 import java.io.*;
 import java.net.*;
+import java.sql.SQLOutput;
+import java.util.ArrayList;
+import java.util.Random;
 
 class Client {
     public static void main(String[] args) {
@@ -16,6 +19,7 @@ class Client {
 
         Piece player = Piece.EMPTY;
         Piece other = Piece.EMPTY;
+        CPU cpuPlayer = new CPU(player);
         Move prevMove = null;
 
 
@@ -37,8 +41,10 @@ class Client {
                     other = Piece.O;
                     player = Piece.X;
 
+                    cpuPlayer = new CPU(player);
+
                     System.out.println("Nouvelle partie! Vous jouer rouge, entrez votre premier coup : ");
-                    Move move = new Move("E4");
+                    Move move = new Move(".E4");
 
                     addMoveToBoard(move, player, gameBoard);
 
@@ -53,7 +59,9 @@ class Client {
 
                     other = Piece.X;
                     player = Piece.O;
-
+                    cpuPlayer = new CPU(player);
+                    //Move move = new Move(".E4");
+                    //addMoveToBoard(move, player, gameBoard);
                    //TODO FILL UP BOARD WITH SENT INFO
 
                 }
@@ -75,9 +83,8 @@ class Client {
 
                     System.out.println("Entrez votre coup : ");
 
-                    var sub = determineSubBoard(enmemyMove,gameBoard);
-                    var moves = sub.getAllPossibleMoves();
-                    var ourMove = moves.get(0);
+                    ArrayList<Move> moves = gameBoard.getValidMoves(enmemyMove);
+                    Move ourMove = moves.get(getRandomIndex(moves));
 
                     //Move ourMove = new Move(" E6");
                     addMoveToBoard(ourMove, player, gameBoard);
@@ -89,12 +96,12 @@ class Client {
                 if(cmd == '4'){
 
                     System.out.println("Coup invalide, entrez un nouveau coup : ");
-
+                    System.out.println("We fucked up");
                     //Temporary move for connection to compile
-                    Move ourMove = new Move(" E2");
-                    addMoveToBoard(ourMove, player, gameBoard);
-                    output.write(ourMove.moveToString().getBytes(),0,2);
-                    output.flush();
+                    //Move ourMove = new Move(" E2");
+                    //addMoveToBoard(ourMove, player, gameBoard);
+                    //output.write(ourMove.moveToString().getBytes(),0,2);
+                    //output.flush();
                     break;
                 }
 
@@ -105,7 +112,6 @@ class Client {
                     input.read(aBuffer,0,size);
                     String s = new String(aBuffer);
                     System.out.println("Partie Terminé. Le dernier coup joué est: "+s);
-                    break;
                 }
             }
         }
@@ -158,5 +164,20 @@ class Client {
                 System.out.print(COLOR_DEFAULT);
             }
         }
+    }
+
+    public static int getRandomIndex(ArrayList<?> list) {
+        // Check if the list is empty
+        if (list.isEmpty()) {
+            return -1; // Or throw an exception, or handle it as you prefer
+        }
+
+        // Create a Random object
+        Random random = new Random();
+
+        // Generate a random index within the bounds of the ArrayList
+        int randomIndex = random.nextInt(list.size());
+
+        return randomIndex;
     }
 }

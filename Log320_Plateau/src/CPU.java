@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Random;
 
 public class CPU {
     Piece cpuMark;
@@ -9,69 +10,39 @@ public class CPU {
         this.cpuMark = cpuMark;
     }
 
-    public ArrayList<Move> getNextMoveMinMax(SubBoard subBoard, int maxDepth, Board board) {
+    public ArrayList<Move> getNextMoveMinMax(int maxDepth, Board board, Move lastMove, Piece playedPiece) {
         ArrayList<Move> moves = new ArrayList<>();
         int max = WORSE_SCORE;
-        for(int i = 0; i < 3; i++) {
-            for(int j = 0; j < 3; j++) {
-                Move move = new Move(i,j);
-                if (subBoard.getValueAt(i, j) == Piece.EMPTY) {
-                    subBoard.play(move, cpuMark);
-                    int ret = minMax(subBoard, cpuMark == Piece.O ? Piece.X : Piece.O, 1, maxDepth, board);
-                    subBoard.play(move, Piece.EMPTY);
-                    if (ret == max) {
-                        moves.add(move);
-                    } else if(ret > max) {
-                        moves.clear();
-                        moves.add(move);
-                        max = ret;
-                    }
-                }
+        ArrayList<Move> possibleMoves = board.getValidMoves(lastMove);
+
+        for (Move move : possibleMoves) {
+            board.playMove(move, playedPiece== Piece.O ? Piece.X : Piece.O);
+            int ret = minMax( cpuMark == Piece.O ? Piece.X : Piece.O, maxDepth-1, board, move);
+            if (ret == max) {
+                moves.add(move);
+            } else if(ret > max) {
+                moves.clear();
+                moves.add(move);
+                max = ret;
             }
+            board.undoMove(move);
         }
         //System.out.println(max);
         return moves;
     }
 
-    private int minMax(SubBoard subBoard, Piece player, int depth, int maxDepth, Board board) {
-        int currentScore = subBoard.evaluate(player);
-        if(maxDepth == depth)
+    private int minMax(Piece player, int depth, Board board, Move playedMove) {
+        int currentScore = evaluateBoard(board, player);
+        if(depth <= 0){
             return currentScore;
-        if(currentScore !=  0 || subBoard.checkIfBoardFull())
-            return currentScore;
-
-        int max = player==cpuMark?WORSE_SCORE : BEST_SCORE;
-        for(int i = 0; i < 3; i++) {
-            for(int j = 0; j < 3; j++) {
-
-                Move move = new Move(i,j);
-                if(subBoard.getValueAt(i, j) == Piece.EMPTY) {
-                    subBoard.play(move, player);
-                    depth++;
-                    SubBoard nSubBoard = board.getSubBoard(i, j);
-                    if(!nSubBoard.isDone()) {
-                        if (player == cpuMark)
-                            max = Math.max(max, minMax(nSubBoard, player == Piece.X ? Piece.O : Piece.X, depth, maxDepth, board));
-                        else
-                            max = Math.min(max, minMax(nSubBoard, player == Piece.X ? Piece.O : Piece.X, depth, maxDepth, board));
-                    }
-                    else {
-                        for(int k = 0; k < 9; k++) {
-                            int a = 0;
-                            if (k != 0 && k % 3 == 0)
-                                a++;
-                            nSubBoard = board.getBoards()[k][a];
-                            if(player == cpuMark)
-                                max = Math.max(max, minMax(nSubBoard, player == Piece.X ? Piece.O : Piece.X, depth, maxDepth, board));
-                            else
-                                max = Math.min(max, minMax(nSubBoard, player == Piece.X ? Piece.O : Piece.X, depth, maxDepth, board));
-                        }
-                    }
-
-                    subBoard.play(move, Piece.EMPTY);
-                }
-            }
         }
+        int max = player==cpuMark?WORSE_SCORE : BEST_SCORE;
+
+        ArrayList<Move> possibleMoves = board.getValidMoves(playedMove);
+        for(int i=0; i < possibleMoves.size(); i++) {
+
+        }
+
         return max;
     }
 
@@ -145,6 +116,10 @@ public class CPU {
             bestMovesList.add(bestMove);
         }
         return bestMoveValue;
+    }
+    private int evaluateBoard(Board board, Piece player) {
+        Random random = new Random();
+        return random.nextInt(201) - 100 ;
     }
 
     public Piece getCpuMark() {
