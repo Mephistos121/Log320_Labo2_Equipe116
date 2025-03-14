@@ -146,4 +146,12 @@ public class CPU {
         }
         return bestMoveValue;
     }
+
+    public Piece getCpuMark() {
+        return cpuMark;
+    }
+
+    public void setCpuMark(Piece cpuMark) {
+        this.cpuMark = cpuMark;
+    }
 }

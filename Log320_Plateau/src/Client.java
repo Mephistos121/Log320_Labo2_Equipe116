@@ -16,6 +16,7 @@ class Client {
 
         Piece player = Piece.EMPTY;
         Piece other = Piece.EMPTY;
+        CPU cpuPlayer = new CPU(Piece.EMPTY);
         Move prevMove = null;
 
 
@@ -36,6 +37,7 @@ class Client {
 
                     other = Piece.O;
                     player = Piece.X;
+                    cpuPlayer.setCpuMark(Piece.X);
 
                     System.out.println("Nouvelle partie! Vous jouer blanc, entrez votre premier coup : ");
                     Move move = new Move("E4");
@@ -53,6 +55,7 @@ class Client {
 
                     other = Piece.X;
                     player = Piece.O;
+                    cpuPlayer.setCpuMark(Piece.O);
 
                    //TODO FILL UP BOARD WITH SENT INFO
 
@@ -76,6 +79,7 @@ class Client {
                     System.out.println("Entrez votre coup : ");
 
                     Move ourMove = new Move(" E6");
+
                     addMoveToBoard(ourMove, player, gameBoard);
                     output.write(ourMove.moveToString().getBytes(),0,2);
                     output.flush();
