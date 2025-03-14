@@ -84,8 +84,9 @@ class Client {
                     System.out.println("Entrez votre coup : ");
 
                     ArrayList<Move> moves = gameBoard.getValidMoves(enmemyMove);
-                    Move ourMove = moves.get(getRandomIndex(moves));
-
+                    ArrayList<Move> movesMinMax = cpuPlayer.getNextMoveMinMax(5,gameBoard,enmemyMove,other);
+                    //Move ourMove = moves.get(getRandomIndex(moves));
+                    Move ourMove = movesMinMax.getFirst();
                     //Move ourMove = new Move(" E6");
                     addMoveToBoard(ourMove, player, gameBoard);
                     output.write(ourMove.moveToString().getBytes(),0,2);

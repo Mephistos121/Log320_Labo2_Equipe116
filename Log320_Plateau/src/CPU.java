@@ -39,10 +39,14 @@ public class CPU {
         int max = player==cpuMark?WORSE_SCORE : BEST_SCORE;
 
         ArrayList<Move> possibleMoves = board.getValidMoves(playedMove);
-        for(int i=0; i < possibleMoves.size(); i++) {
-
+        for (Move move : possibleMoves) {
+            board.playMove(move, player == Piece.O ? Piece.X : Piece.O);
+            int ret = minMax(cpuMark == Piece.O ? Piece.X : Piece.O, depth - 1, board, move);
+            if (ret >= max) {
+                max = ret;
+            }
+            board.undoMove(move);
         }
-
         return max;
     }
 
