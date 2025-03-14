@@ -18,8 +18,6 @@ class Client {
         Piece other = Piece.EMPTY;
         Move prevMove = null;
 
-        displayBoard(gameBoard);
-
 
         try {
             MyClient = new Socket("localhost", 8888);
@@ -42,10 +40,9 @@ class Client {
                     System.out.println("Nouvelle partie! Vous jouer blanc, entrez votre premier coup : ");
                     Move move = new Move("E4");
 
-                    prevMove = move;
                     addMoveToBoard(move, player, gameBoard);
 
-                    output.write(move.toString().getBytes(),0,2);
+                    output.write(move.moveToString().getBytes(),0,2);
                     output.flush();
                 }
 
@@ -80,7 +77,6 @@ class Client {
 
                     Move ourMove = new Move(" E6");
                     addMoveToBoard(ourMove, player, gameBoard);
-                    displayBoard(gameBoard);
                     output.write(ourMove.moveToString().getBytes(),0,2);
                     output.flush();
                 }
@@ -93,7 +89,6 @@ class Client {
                     //Temporary move for connection to compile
                     Move ourMove = new Move(" E2");
                     addMoveToBoard(ourMove, player, gameBoard);
-                    displayBoard(gameBoard);
                     output.write(ourMove.moveToString().getBytes(),0,2);
                     output.flush();
                     break;
