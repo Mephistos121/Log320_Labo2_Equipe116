@@ -28,22 +28,7 @@ public class SubBoard {
 
     public void play(Move m, Piece piece){
         subBoard[m.getRow()%3][m.getCol()%3] = piece;
-
-        int result = evaluate(piece);
-
-        if(result == 100){
-            setWinner(piece);
-            done = true;
-        }
-        if(result == -100){
-            setWinner(piece.equals(Piece.O) ? Piece.X : Piece.O);
-            done = true;
-        }
-
-        if(checkIfBoardFull() && result == 0){
-            setWinner(Piece.TIE);
-            done = true;
-        }
+        updateCheckIfDone();
     }
 
     // retourne  100 pour une victoire
@@ -108,6 +93,16 @@ public class SubBoard {
             }
         }
         return true;
+    }
+
+    private void updateCheckIfDone(){
+        int test = evaluate(Piece.X);
+        if(checkIfBoardFull() || test !=0){
+            done = true;
+        }else{
+            done = false;
+        }
+
     }
 
     //TODO: add error handling

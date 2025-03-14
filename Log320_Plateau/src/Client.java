@@ -20,8 +20,6 @@ class Client {
         Piece player = Piece.EMPTY;
         Piece other = Piece.EMPTY;
         CPU cpuPlayer = new CPU(player);
-        Move prevMove = null;
-
 
         try {
             MyClient = new Socket("localhost", 8888);
@@ -44,7 +42,7 @@ class Client {
                     cpuPlayer = new CPU(player);
 
                     System.out.println("Nouvelle partie! Vous jouer rouge, entrez votre premier coup : ");
-                    Move move = new Move(".E4");
+                    Move move = new Move(".E5");
 
                     addMoveToBoard(move, player, gameBoard);
 
@@ -84,7 +82,7 @@ class Client {
                     System.out.println("Entrez votre coup : ");
 
                     ArrayList<Move> moves = gameBoard.getValidMoves(enmemyMove);
-                    ArrayList<Move> movesMinMax = cpuPlayer.getNextMoveMinMax(5,gameBoard,enmemyMove,other);
+                    ArrayList<Move> movesMinMax = cpuPlayer.getNextMoveMinMax(4,gameBoard,enmemyMove,other);
                     //Move ourMove = moves.get(getRandomIndex(moves));
                     Move ourMove = movesMinMax.getFirst();
                     //Move ourMove = new Move(" E6");
@@ -125,47 +123,13 @@ class Client {
 
     public static void addMoveToBoard(Move move, Piece piece, Board board) {
         board.getSubBoard(move.getRow()/3, move.getCol()/3).play(move, piece);
-        displayBoard(board);
+        board.displayBoard();
     }
 
     public static SubBoard determineSubBoard(Move move, Board board) {
-        var s = board.getSubBoard(move.getRow()%3, move.getCol()%3);
-        return s;
+        return board.getSubBoard(move.getRow()%3, move.getCol()%3);
     }
 
-    public static void displayBoard(Board board) {
-        final String COLOR_DEFAULT = "\u001B[0m";
-        final String COLOR_RED = "\u001B[31m";
-        final String COLOR_BLUE = "\u001B[34m";
-        System.out.println("-=-=-=-=-=-=-=-=-=-=-=-=-");
-
-        int offSetX;
-        int offSetY = 0;
-        for(int i = 0; i < 9; i++) {
-            offSetX = 0;
-            if(i != 0 && i%3 == 0) {
-                System.out.println("\n---------┼---------┼---------");
-                offSetY++;
-            }
-            else
-                System.out.println();
-            for(int j = 0; j < 9; j++) {
-                if (j != 0 && j % 3 == 0) {
-                    System.out.print("|");
-                    offSetX++;
-                }
-                //System.out.println(offSetX+", "+offSetY);
-
-                Piece p = board.getSubBoard(i/3,j/3).getValueAt(i%3, j%3);
-                if(p == Piece.X)
-                    System.out.print(COLOR_RED);
-                else if(p == Piece.O)
-                    System.out.print(COLOR_BLUE);
-                System.out.print(" "+ (p==Piece.EMPTY?" ":p)+" ");
-                System.out.print(COLOR_DEFAULT);
-            }
-        }
-    }
 
     public static int getRandomIndex(ArrayList<?> list) {
         // Check if the list is empty
