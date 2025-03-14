@@ -30,14 +30,14 @@ class Client {
                 cmd = (char)input.read();
                 //System.out.println(cmd);
 
-                // Debut de la partie en joueur blanc
+                // Debut de la partie en joueur rouge
                 if(cmd == '1'){
                     byte[] aBuffer = new byte[1024];
 
                     other = Piece.O;
                     player = Piece.X;
 
-                    System.out.println("Nouvelle partie! Vous jouer blanc, entrez votre premier coup : ");
+                    System.out.println("Nouvelle partie! Vous jouer rouge, entrez votre premier coup : ");
                     Move move = new Move("E4");
 
                     addMoveToBoard(move, player, gameBoard);
@@ -75,7 +75,11 @@ class Client {
 
                     System.out.println("Entrez votre coup : ");
 
-                    Move ourMove = new Move(" E6");
+                    var sub = determineSubBoard(enmemyMove,gameBoard);
+                    var moves = sub.getAllPossibleMoves();
+                    var ourMove = moves.get(0);
+
+                    //Move ourMove = new Move(" E6");
                     addMoveToBoard(ourMove, player, gameBoard);
                     output.write(ourMove.moveToString().getBytes(),0,2);
                     output.flush();
@@ -115,6 +119,11 @@ class Client {
     public static void addMoveToBoard(Move move, Piece piece, Board board) {
         board.getSubBoard(move.getRow()/3, move.getCol()/3).play(move, piece);
         displayBoard(board);
+    }
+
+    public static SubBoard determineSubBoard(Move move, Board board) {
+        var s = board.getSubBoard(move.getRow()%3, move.getCol()%3);
+        return s;
     }
 
     public static void displayBoard(Board board) {
