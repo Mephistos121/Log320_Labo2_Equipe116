@@ -27,11 +27,7 @@ public class SubBoard {
     //TODO Add error handeling for illegal move
 
     public void play(Move m, Piece piece){
-        if(checkLegalMove(m, piece)) {
-            subBoard[m.getRow()][m.getCol()] = piece;
-        }else{
-            System.out.println("Invalid move");
-        }
+        subBoard[m.getRow()%3][m.getCol()%3] = piece;
     }
 
     // retourne  100 pour une victoire
