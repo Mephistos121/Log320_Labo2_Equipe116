@@ -95,30 +95,27 @@ public class SubBoard {
         return true;
     }
 
-    private void updateCheckIfDone(){
-        int test = evaluate(Piece.X);
-        if(checkIfBoardFull() || test !=0){
-            done = true;
-        }else{
-            done = false;
+    private void updateCheckIfDone() {
+
+        if (checkRows(Piece.X) || checkColumns(Piece.X) || checkDiagonal(Piece.X)) {
+            this.done = true;
+            this.winner = Piece.X;
+            return;
+        }
+        if (checkRows(Piece.O) || checkColumns(Piece.O) || checkDiagonal(Piece.O)) {
+            this.done = true;
+            this.winner = Piece.O;
+            return;
         }
 
-    }
-
-    //TODO: add error handling
-    //TODO: Chek if this is the write board
-    private boolean checkLegalMove(Move m, Piece piece){
-
-        //check out of bounds
-        if(m.getCol() > 2 || m.getRow() > 2 || m.getCol() < 0 || m.getRow() <0){
-            return false;
+        if (checkIfBoardFull()) {
+            this.done = true;
+            this.winner = Piece.TIE;
+            return;
         }
 
-        //check if the position is empty
-        if(subBoard[m.getRow()][m.getCol()] != Piece.EMPTY){
-            return false;
-        }
-        return true;
+        this.done = false;
+        this.winner = Piece.EMPTY;
     }
 
     public void setValueAt(int row, int column, Piece piece){

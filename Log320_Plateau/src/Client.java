@@ -42,7 +42,7 @@ class Client {
                     cpuPlayer = new CPU(player);
 
                     System.out.println("Nouvelle partie! Vous jouer rouge, entrez votre premier coup : ");
-                    Move move = new Move(".E5");
+                    Move move = new Move(".E6");
 
                     addMoveToBoard(move, player, gameBoard);
 
@@ -82,9 +82,9 @@ class Client {
                     System.out.println("Entrez votre coup : ");
 
                     ArrayList<Move> moves = gameBoard.getValidMoves(enmemyMove);
-                    ArrayList<Move> movesMinMax = cpuPlayer.getNextMoveMinMax(4,gameBoard,enmemyMove,other);
+                    ArrayList<Move> alphaBeta = cpuPlayer.getNextMoveMinMaxAlphaBeta(7,gameBoard,enmemyMove);
                     //Move ourMove = moves.get(getRandomIndex(moves));
-                    Move ourMove = movesMinMax.getFirst();
+                    Move ourMove = alphaBeta.getFirst();
                     //Move ourMove = new Move(" E6");
                     addMoveToBoard(ourMove, player, gameBoard);
                     output.write(ourMove.moveToString().getBytes(),0,2);

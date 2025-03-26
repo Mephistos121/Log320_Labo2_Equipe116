@@ -3,8 +3,13 @@ import java.util.Random;
 
 public class CPU {
     Piece cpuMark;
-    final int WORSE_SCORE = -100;
-    final int BEST_SCORE = 100;
+    final int WORSE_SCORE = Integer.MIN_VALUE;
+    final int BEST_SCORE = Integer.MAX_VALUE;
+
+    //Basic evaluate points sett here for easy changing
+    private static final int OVERALL_WIN_SCORE = 100000;
+    private static final int SUB_BOARD_WIN_SCORE = 100;
+    private static final int TWO_SUB_BOARDS_IN_LINE_SCORE = 50;
 
     public CPU(Piece cpuMark) {
         this.cpuMark = cpuMark;
@@ -65,78 +70,117 @@ public class CPU {
     }
 
 
-    public ArrayList<Move> getNextMoveAB(int maxDepth, Board board, Move lastMove, Piece playedPiece) {
-        ArrayList<Move> moves = new ArrayList<>();
-        int max = WORSE_SCORE;
+    public ArrayList<Move> getNextMoveMinMaxAlphaBeta(int maxDepth, Board board, Move lastMove) {
+        ArrayList<Move> bestMoves = new ArrayList<>();
+        int maxScore = WORSE_SCORE; // Start with the worst possible score for the maximizer
+        int alpha = WORSE_SCORE;     // Initialize alpha
+        int beta = BEST_SCORE;      // Initialize beta
         ArrayList<Move> possibleMoves = board.getValidMoves(lastMove);
 
+        Piece opponentPiece = (cpuMark == Piece.O) ? Piece.X : Piece.O;
+
+        // The top level is always maximizing for us
         for (Move move : possibleMoves) {
-            board.playMove(move, playedPiece== Piece.O ? Piece.X : Piece.O);
-            int ret = alphaBeta(cpuMark == Piece.O ? Piece.X : Piece.O, maxDepth-1, board, move,false);
+
+            board.playMove(move, cpuMark);
+            int score = minMaxAlphaBeta(opponentPiece, maxDepth - 1, board, move, false, alpha, beta);
             board.undoMove(move);
-            if (ret == max) {
-                moves.add(move);
-            } else if(ret > max) {
-                moves.clear();
-                moves.add(move);
-                max = ret;
+
+            if (score == maxScore) {
+                bestMoves.add(move);
+            } else if (score > maxScore) {
+                maxScore = score;
+                bestMoves.clear();
+                bestMoves.add(move);
             }
+            //Root setting the alpha score, beta in recursive
+            alpha = Math.max(alpha, score);
         }
-        //System.out.println(max);
-        return moves;
+        return bestMoves;
     }
 
+    private int minMaxAlphaBeta(Piece player, int depth, Board board, Move lastPlayedMove, boolean isMaxing, int alpha, int beta) {
 
-    //La partie récursive de alphaBeta
-    private int alphaBeta(Piece player, int depth, Board board, Move playedMove, Boolean isMaxing) {
-        int currentScore = evaluateBoard(board, player, playedMove);
-        if(depth <= 0 || board.isDone()!=Piece.EMPTY){
-            return currentScore;
+        Piece winner = board.isDone();
+        if (depth <= 0 || winner != Piece.EMPTY) {
+            return evaluateBoard(board, cpuMark, lastPlayedMove);
         }
-        ArrayList<Move> possibleMoves = board.getValidMoves(playedMove);
-        if(isMaxing){
+
+        ArrayList<Move> possibleMoves = board.getValidMoves(lastPlayedMove);
+        Piece nextPlayer = (player == Piece.O) ? Piece.X : Piece.O;
+
+        if (isMaxing) {
             int maxScore = WORSE_SCORE;
             for (Move move : possibleMoves) {
-                board.playMove(move, player == Piece.O ? Piece.X : Piece.O);
-                int retScore = minMax(player == Piece.O ? Piece.X : Piece.O, depth - 1, board, move,false);
+                board.playMove(move, player);
+                int score = minMaxAlphaBeta(nextPlayer, depth - 1, board, move, false, alpha, beta);
                 board.undoMove(move);
-                if (retScore >= maxScore) {
-                    maxScore = retScore;
+
+                maxScore = Math.max(maxScore, score);
+                alpha = Math.max(alpha, maxScore);
+
+                if (beta <= alpha) {
+                    break;
                 }
             }
             return maxScore;
-        }else{
-            int maxScore = BEST_SCORE;
+
+        } else {
+            int minScore = BEST_SCORE;
             for (Move move : possibleMoves) {
-                board.playMove(move, player == Piece.O ? Piece.X : Piece.O);
-                int retScore = minMax(player == Piece.O ? Piece.X : Piece.O, depth - 1, board, move,true);
+                board.playMove(move, player);
+                int score = minMaxAlphaBeta(nextPlayer, depth - 1, board, move, true, alpha, beta);
                 board.undoMove(move);
-                if (retScore <= maxScore) {
-                    maxScore = retScore;
+
+                minScore = Math.min(minScore, score);
+                beta = Math.min(beta, minScore);
+
+                if (beta <= alpha) {
+                    break;
                 }
-                board.undoMove(move);
             }
-            return maxScore;
-
+            return minScore;
         }
-    }
-
-    private int getBestMoveValue(int bestMoveValue, ArrayList<Move> bestMovesList, int i, int j, int moveValue) {
-        if (moveValue > bestMoveValue) {
-            bestMoveValue = moveValue;
-            bestMovesList.clear();
-            Move bestMove = new Move(i, j);
-            bestMovesList.add(bestMove);
-        } else if (moveValue == bestMoveValue) {
-            Move bestMove = new Move(i, j);
-            bestMovesList.add(bestMove);
-        }
-        return bestMoveValue;
     }
 
     private int evaluateBoard(Board board, Piece player, Move move) {
-        Random rand = new Random();
-        return rand.nextInt(201)-100;
+        Piece opponent = (player == Piece.X) ? Piece.O : Piece.X;
+
+        // 1. Check for Overall Game Win/Loss/Draw
+        Piece overallWinner = board.isDone();
+        if (overallWinner == player) {
+            return OVERALL_WIN_SCORE;
+        }
+        if (overallWinner == opponent) {
+            return -OVERALL_WIN_SCORE;
+        }
+        if (overallWinner == Piece.TIE) {
+            return 0;
+        }
+
+        // --- Game is ongoing ---
+
+        int currentScore = 0;
+
+        // 2. Evaluate based on won Sub-Boards
+        for (int r = 0; r < 3; r++) {
+            for (int c = 0; c < 3; c++) {
+                Piece subWinner = board.getSubBoard(r,c).getWinner();
+                if (subWinner == player) {
+                    currentScore += SUB_BOARD_WIN_SCORE;
+                } else if (subWinner == opponent) {
+                    currentScore -= SUB_BOARD_WIN_SCORE;
+                }
+            }
+        }
+
+        if(board.getSubBoard(1,1).getValueAt(1,1).equals(player)){
+            currentScore += 50;
+        } else{
+            currentScore -= 50;
+        }
+
+        return currentScore;
     }
 
     public Piece getCpuMark() {
