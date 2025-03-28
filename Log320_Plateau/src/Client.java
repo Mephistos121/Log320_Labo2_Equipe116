@@ -26,6 +26,7 @@ class Client {
             input    = new BufferedInputStream(MyClient.getInputStream());
             output   = new BufferedOutputStream(MyClient.getOutputStream());
             BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
+            Move ourLastMove = null;
             while(1 == 1){
                 char cmd = 0;
 
@@ -77,16 +78,17 @@ class Client {
 
                     Move enmemyMove = new Move(s);
                     System.out.println("Move received :"+ enmemyMove);
+                    // check if enemy move is valid here
+                    checkEnemyMove(gameBoard,ourLastMove,enmemyMove);
                     addMoveToBoard(enmemyMove,other,gameBoard);
-
+                    
                     System.out.println("Entrez votre coup : ");
-
-                    ArrayList<Move> moves = gameBoard.getValidMoves(enmemyMove);
                     ArrayList<Move> alphaBeta = cpuPlayer.getNextMoveMinMaxAlphaBeta(7,gameBoard,enmemyMove);
                     //Move ourMove = moves.get(getRandomIndex(moves));
-                    Move ourMove = alphaBeta.getFirst();
+                    Move ourMove = alphaBeta.get(0);
                     //Move ourMove = new Move(" E6");
                     addMoveToBoard(ourMove, player, gameBoard);
+                    ourLastMove = ourMove;
                     output.write(ourMove.moveToString().getBytes(),0,2);
                     output.flush();
                 }
@@ -119,6 +121,18 @@ class Client {
             System.out.println("bad connection");
         }
 
+    }
+
+    private static void checkEnemyMove(Board gameBoard, Move ourLastMove, Move enmemyMove) {
+        if(ourLastMove == null) return;
+        ArrayList<Move> moves = gameBoard.getValidMoves(ourLastMove);
+        for (Move move : moves) {
+            if (move.toString().equals((enmemyMove).toString())){
+                return;
+            }
+        }
+        System.err.println("Last enemy move was invalid");
+        System.exit(1);
     }
 
     public static void addMoveToBoard(Move move, Piece piece, Board board) {
