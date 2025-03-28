@@ -131,8 +131,7 @@ class Client {
                 return;
             }
         }
-        System.err.println("Last enemy move was invalid");
-        System.exit(1);
+        throw new RuntimeException("Last enemy move was invalid");
     }
 
     public static void addMoveToBoard(Move move, Piece piece, Board board) {
