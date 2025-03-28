@@ -43,7 +43,7 @@ class Client {
                     cpuPlayer = new CPU(player);
 
                     System.out.println("Nouvelle partie! Vous jouer rouge, entrez votre premier coup : ");
-                    Move ourMove = new Move(".E6");
+                    Move ourMove = new Move(".E5");
                     ourLastMove = ourMove;
                     addMoveToBoard(ourMove, player, gameBoard);
 
