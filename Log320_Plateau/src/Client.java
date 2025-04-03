@@ -3,6 +3,8 @@ import java.net.*;
 import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class Client {
     public static void main(String[] args) {
@@ -36,6 +38,12 @@ class Client {
                 // Debut de la partie en joueur rouge
                 if(cmd == '1'){
                     byte[] aBuffer = new byte[1024];
+                    int size = input.available();
+                    input.read(aBuffer,0,size);
+                    String s = new String(aBuffer).trim();
+                    System.out.println(s);
+                    gameBoard = new Board(createBoardFromString(s));
+
 
                     other = Piece.O;
                     player = Piece.X;
@@ -55,6 +63,11 @@ class Client {
                 if(cmd == '2'){
                     System.out.println("Nouvelle partie! Vous jouer noir, attendez le coup des blancs");
                     byte[] aBuffer = new byte[1024];
+                    int size = input.available();
+                    input.read(aBuffer,0,size);
+                    String s = new String(aBuffer).trim();
+                    System.out.println(s);
+                    gameBoard = new Board(createBoardFromString(s));
 
                     other = Piece.X;
                     player = Piece.O;
@@ -157,5 +170,58 @@ class Client {
         int randomIndex = random.nextInt(list.size());
 
         return randomIndex;
+    }
+
+    public static SubBoard[][] createBoardFromString(String s) {
+        Pattern pa = Pattern.compile("[^024]");
+        Matcher m = pa.matcher(s);
+        s = m.replaceAll("");
+        char[] t = s.toCharArray();
+
+        SubBoard[][] subBoard = {{new SubBoard(0, 0), new SubBoard(0, 1), new SubBoard(0, 2)}
+                , {new SubBoard(1, 0), new SubBoard(1, 1), new SubBoard(1, 2)},
+                {new SubBoard(2, 0), new SubBoard(2, 1), new SubBoard(2, 2)}};
+        int i = 0;
+        int j = 0;
+        int x = 0;
+        int y = 0;
+        int idx = 0;
+        Piece p;
+
+
+        while(i != 2 || j != 2) {
+            while(x != 2 || y != 2) {
+                idx = (j*3+i*27+y*9+x);
+
+                if(t[idx] == '2')
+                    p = Piece.O;
+                else if(t[idx] == '4')
+                    p = Piece.X;
+                else
+                    p = Piece.EMPTY;
+                //invert vertically
+                subBoard[2-i][j].setValueAt(2-y, x, p);
+
+                x++;
+                if(x != 0 && x%3 == 0) {
+                    y++;
+                    x = 0;
+                }
+            }
+            if(j == 2) {
+                j = 0;
+                i++;
+            }
+            else
+                j++;
+            x = 0;
+            y = 0;
+
+        }
+
+
+        Board b = new Board(subBoard);
+        b.displayBoard();
+        return subBoard;
     }
 }

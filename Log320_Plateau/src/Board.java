@@ -123,4 +123,8 @@ public class Board {
         }
         return wins.getWinner();
     }
+
+    public Board clone() {
+        return new Board(this.boards.clone());
+    }
 }

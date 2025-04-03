@@ -11,6 +11,7 @@ public class CPU {
     private static final int SUB_BOARD_WIN_SCORE = 100;
     private static final int TWO_SUB_BOARDS_IN_LINE_SCORE = 50;
 
+
     public CPU(Piece cpuMark) {
         this.cpuMark = cpuMark;
     }
@@ -20,10 +21,15 @@ public class CPU {
         int max = WORSE_SCORE;
         ArrayList<Move> possibleMoves = board.getValidMoves(lastMove);
 
+
+
         for (Move move : possibleMoves) {
             board.playMove(move, playedPiece== Piece.O ? Piece.X : Piece.O);
             int ret = minMax( cpuMark == Piece.O ? Piece.X : Piece.O, maxDepth-1, board, move,false);
             board.undoMove(move);
+
+
+
             if (ret == max) {
                 moves.add(move);
             } else if(ret > max) {
@@ -32,12 +38,14 @@ public class CPU {
                 max = ret;
             }
         }
+
+
         //System.out.println(max);
         return moves;
     }
 
     private int minMax(Piece player, int depth, Board board, Move playedMove, Boolean isMaxing) {
-        int currentScore = evaluateBoard(board, player, playedMove);
+        int currentScore = evaluateBoard(board, player);
         if(depth <= 0 || board.isDone()!=Piece.EMPTY){
             return currentScore;
         }
@@ -79,6 +87,51 @@ public class CPU {
 
         Piece opponentPiece = (cpuMark == Piece.O) ? Piece.X : Piece.O;
 
+        /*
+        ArrayList<Thread> threads = new ArrayList<>();
+        ArrayList<ABRunnable> runs = new ArrayList<>();
+        for(Move move : possibleMoves) {
+            ABRunnable run = new ABRunnable(cpuMark, maxDepth, board.clone(), move,true, alpha, beta);
+            Thread thread = new Thread(run);
+            threads.add(thread);
+            thread.start();
+            runs.add(run);
+        }
+        int i = 0;
+        int score;
+        Move move;
+
+        while(!threads.isEmpty()) {
+            for(Thread thread : threads) {
+                if(!thread.isAlive()) {
+                    try {
+                        thread.join();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    int idx = threads.indexOf(thread);
+                    score = runs.get(idx).getScore();
+                    move = runs.get(idx).getMove();
+                    runs.remove(idx);
+                    threads.remove(thread);
+
+                    System.out.println(score);
+
+                    if (score == maxScore) {
+                        bestMoves.add(move);
+                    } else if(score > maxScore) {
+                        bestMoves.clear();
+                        bestMoves.add(move);
+                        maxScore = score;
+                    }
+                    alpha = Math.max(alpha, score);
+                    break;
+                }
+            }
+
+        }
+
+*/
         // The top level is always maximizing for us
         for (Move move : possibleMoves) {
 
@@ -96,14 +149,21 @@ public class CPU {
             //Root setting the alpha score, beta in recursive
             alpha = Math.max(alpha, score);
         }
+
+
+
+
         return bestMoves;
     }
 
-    private int minMaxAlphaBeta(Piece player, int depth, Board board, Move lastPlayedMove, boolean isMaxing, int alpha, int beta) {
+    //is public because it is needed for multi-threading
+    //it's more than likely a bad way to implement
+    //tell me if there's better
+    public int minMaxAlphaBeta(Piece player, int depth, Board board, Move lastPlayedMove, boolean isMaxing, int alpha, int beta) {
 
         Piece winner = board.isDone();
         if (depth <= 0 || winner != Piece.EMPTY) {
-            return evaluateBoard(board, cpuMark, lastPlayedMove);
+            return evaluateBoard(board, cpuMark);
         }
 
         ArrayList<Move> possibleMoves = board.getValidMoves(lastPlayedMove);
@@ -143,7 +203,7 @@ public class CPU {
         }
     }
 
-    private int evaluateBoard(Board board, Piece player, Move move) {
+    private int evaluateBoard(Board board, Piece player) {
         Piece opponent = (player == Piece.X) ? Piece.O : Piece.X;
 
         // 1. Check for Overall Game Win/Loss/Draw
@@ -165,7 +225,7 @@ public class CPU {
         // 2. Evaluate based on won Sub-Boards
         for (int r = 0; r < 3; r++) {
             for (int c = 0; c < 3; c++) {
-                Piece subWinner = board.getSubBoard(r,c).getWinner();
+                Piece subWinner = board.getSubBoard(r, c).getWinner();
                 if (subWinner == player) {
                     currentScore += SUB_BOARD_WIN_SCORE;
                 } else if (subWinner == opponent) {
@@ -190,4 +250,11 @@ public class CPU {
     public void setCpuMark(Piece cpuMark) {
         this.cpuMark = cpuMark;
     }
+
+    private int createThread(Piece player, int depth, Board board, Move lastPlayedMove, boolean isMaxing, int alpha, int beta) {
+
+
+        return -1;
+    }
+
 }
