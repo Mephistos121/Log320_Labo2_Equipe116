@@ -125,7 +125,7 @@ class Client {
 
                     //Checks we do to see if we slow down our pace or not
                     if (moveCounter > deepThinkingMode){
-                        depth = 10;
+                        depth = 11;
                         System.out.println("Deep thinking mode activated");
                     }
                 }
