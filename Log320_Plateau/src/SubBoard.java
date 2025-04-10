@@ -15,9 +15,9 @@ public class SubBoard {
     private static final double FORK_SCORE = 7.0;
     // Strategic weight of position in a sub-board
     private static final double[][] SUB_BOARD_POSITION_POINTS = {
-            {0.2,  0.17, 0.2 },  // Row 0: Top-left, Top-mid, Top-right
-            {0.17, 0.30, 0.17},  // Row 1: Mid-left, Center, Mid-right
-            {0.2,  0.17, 0.2 }   // Row 2: Bot-left, Bot-mid, Bot-right
+            {0.3,  0.22, 0.3 },  // Row 0: Top-left, Top-mid, Top-right
+            {0.22, 0.40, 0.22},  // Row 1: Mid-left, Center, Mid-right
+            {0.3,  0.22, 0.3 }   // Row 2: Bot-left, Bot-mid, Bot-right
     };
 
     public SubBoard(int row, int col) {

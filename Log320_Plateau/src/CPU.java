@@ -12,21 +12,14 @@ public class CPU {
 
     //Basic evaluate points sett here for easy changing
     private static final double OVERALL_WIN_SCORE = 1000000;
-    private static final double TWO_SUB_BOARDS_IN_LINE_SCORE = 750;
+    private static final double TWO_SUB_BOARDS_THREAT_SCORE = 750;
 
 
     // Strategic weight of each sub-board
     private static final double[][] EVALUATOR_BIG_BOARD = {
-        {1.4,  1, 1.4 },
-        {1, 1.75, 1},
-        {1.4,  1, 1.4 }
-    };
-
-    // Strategic weight of position in a sub-board (not used here but is the same as the one in sub-board class)
-    private static final double[][] SUB_BOARD_POSITION_POINTS = {
-            {0.2,  0.17, 0.2 },  // Top-left, Top-mid, Top-right
-            {0.17, 0.22, 0.17},  // Mid-left, Center, Mid-right
-            {0.2,  0.17, 0.2 }   // Bot-left, Bot-mid, Bot-right
+        {1.5,  1, 1.5 },
+        {1, 1.9, 1},
+        {1.5,  1, 1.5 }
     };
 
     private static final double SUB_EVAL_BASE_WEIGHT = 1.5; //
@@ -105,6 +98,7 @@ public class CPU {
 
         Piece opponentPiece = (cpuMark == Piece.O) ? Piece.X : Piece.O;
 
+
         // The top level is always maximizing for us
         for (Move move : possibleMoves) {
 
@@ -122,6 +116,7 @@ public class CPU {
             //Root setting the alpha score, beta in recursive
             alpha = Math.max(alpha, score);
         }
+        System.out.println("Best score: found: "+maxScore);
         return bestMoves;
     }
 
@@ -190,6 +185,7 @@ public class CPU {
             for (int c = 0; c < 3; c++) {
                 if(player == Piece.X) {
                     currentScore +=  board.getSubBoard(r,c).evaluateFromHash(boardHashForX)*EVALUATOR_BIG_BOARD[r][c];
+
                 }else{
                     currentScore +=  board.getSubBoard(r,c).evaluateFromHash(boardHashForO)*EVALUATOR_BIG_BOARD[r][c];
                 }
