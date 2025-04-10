@@ -1,10 +1,14 @@
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.HashMap;
+
 
 public class CPU {
     Piece cpuMark;
     final int WORSE_SCORE = Integer.MIN_VALUE;
     final int BEST_SCORE = Integer.MAX_VALUE;
+    private HashMap<Integer,Double> boardHashForX = new HashMap<>();
+    private HashMap<Integer,Double> boardHashForO = new HashMap<>();
+
 
     //Basic evaluate points sett here for easy changing
     private static final double OVERALL_WIN_SCORE = 1000000;
@@ -20,9 +24,9 @@ public class CPU {
 
     // Strategic weight of position in a sub-board (not used here but is the same as the one in sub-board class)
     private static final double[][] SUB_BOARD_POSITION_POINTS = {
-            {0.2,  0.17, 0.2 },  // Row 0: Top-left, Top-mid, Top-right
-            {0.17, 0.22, 0.17},  // Row 1: Mid-left, Center, Mid-right
-            {0.2,  0.17, 0.2 }   // Row 2: Bot-left, Bot-mid, Bot-right
+            {0.2,  0.17, 0.2 },  // Top-left, Top-mid, Top-right
+            {0.17, 0.22, 0.17},  // Mid-left, Center, Mid-right
+            {0.2,  0.17, 0.2 }   // Bot-left, Bot-mid, Bot-right
     };
 
     private static final double SUB_EVAL_BASE_WEIGHT = 1.5; //
@@ -184,7 +188,11 @@ public class CPU {
         // 2. Evaluate based on won Sub-Boards
         for (int r = 0; r < 3; r++) {
             for (int c = 0; c < 3; c++) {
-                currentScore +=  board.getSubBoard(r,c).evaluate(player)*EVALUATOR_BIG_BOARD[r][c];
+                if(player == Piece.X) {
+                    currentScore +=  board.getSubBoard(r,c).evaluateFromHash(boardHashForX)*EVALUATOR_BIG_BOARD[r][c];
+                }else{
+                    currentScore +=  board.getSubBoard(r,c).evaluateFromHash(boardHashForO)*EVALUATOR_BIG_BOARD[r][c];
+                }
             }
         }
 
@@ -198,5 +206,13 @@ public class CPU {
 
     public void setCpuMark(Piece cpuMark) {
         this.cpuMark = cpuMark;
+    }
+
+    public void setBoardHashForO(HashMap<Integer,Double> boardHashForO) {
+        this.boardHashForO = boardHashForO;
+    }
+
+    public void setBoardHashForX(HashMap<Integer,Double> boardHashForX) {
+        this.boardHashForX = boardHashForX;
     }
 }

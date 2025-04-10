@@ -1,8 +1,7 @@
 import java.io.*;
 import java.net.*;
 import java.sql.SQLOutput;
-import java.util.ArrayList;
-import java.util.Random;
+import java.util.*;
 
 class Client {
     public static void main(String[] args) {
@@ -12,14 +11,43 @@ class Client {
         BufferedOutputStream output;
 
         //Initialise the board to be empty
-        SubBoard[][] subBoard = {{new SubBoard(0,0), new SubBoard(0,1), new SubBoard(0,2)}
+        SubBoard[][] subBoardArray = {{new SubBoard(0,0), new SubBoard(0,1), new SubBoard(0,2)}
                 , {new SubBoard(1,0), new SubBoard(1,1), new SubBoard(1,2)},
                 {new SubBoard(2,0), new SubBoard(2,1), new SubBoard(2,2)}};
-        Board gameBoard = new Board(subBoard);
+        Board gameBoard = new Board(subBoardArray);
 
         Piece player = Piece.EMPTY;
         Piece other = Piece.EMPTY;
         CPU cpuPlayer = new CPU(player);
+
+        HashMap<Integer,Double> boardStateHashForX = new HashMap<>();
+        HashMap<Integer, Double> boardStateHashForO = new HashMap<>();
+        BoardStateHash boardStateHasher = new BoardStateHash();
+
+        Board board = new Board(subBoardArray);
+        SubBoardGenerator subBoardGenerator = new SubBoardGenerator();
+        List<Piece[][]> allPossibleSubBoards = subBoardGenerator.generateAllPossibleBoardStates();
+
+        //Pre evaluate all possible boards for X
+        for(int i = 0; i<allPossibleSubBoards.size();i++) {
+            SubBoard subBoardEvaluate = new SubBoard(0,0);
+            subBoardEvaluate.setSubBoard(allPossibleSubBoards.get(i));
+            boardStateHashForX.put(boardStateHasher.boardToIntId(allPossibleSubBoards.get(i)),
+                    subBoardEvaluate.evaluate(Piece.X));
+        }
+
+        //Pre evaluate all possible boards for O
+        for(int i = 0; i<allPossibleSubBoards.size();i++) {
+            SubBoard subBoardEvaluate = new SubBoard(0,0);
+            subBoardEvaluate.setSubBoard(allPossibleSubBoards.get(i));
+            boardStateHashForO.put(boardStateHasher.boardToIntId(allPossibleSubBoards.get(i)),
+                    subBoardEvaluate.evaluate(Piece.O));
+        }
+
+
+        System.out.println("Here is the size of the  all possible SubBoards: "+allPossibleSubBoards.size());
+        System.out.println("Here is the size of the x hashmap: "+boardStateHashForX.size());
+        System.out.println("Here is the size of the o hashmap: "+boardStateHashForO.size());
 
         try {
             MyClient = new Socket("localhost", 8888);
@@ -41,6 +69,8 @@ class Client {
                     player = Piece.X;
 
                     cpuPlayer = new CPU(player);
+                    cpuPlayer.setBoardHashForO(boardStateHashForO);
+                    cpuPlayer.setBoardHashForX(boardStateHashForX);
 
                     System.out.println("Nouvelle partie! Vous jouer rouge, entrez votre premier coup : ");
                     Move ourMove = new Move(".E5");
@@ -58,7 +88,10 @@ class Client {
 
                     other = Piece.X;
                     player = Piece.O;
+
                     cpuPlayer = new CPU(player);
+                    cpuPlayer.setBoardHashForO(boardStateHashForO);
+                    cpuPlayer.setBoardHashForX(boardStateHashForX);
                     //Move move = new Move(".E4");
                     //addMoveToBoard(move, player, gameBoard);
                    //TODO FILL UP BOARD WITH SENT INFO
@@ -83,7 +116,7 @@ class Client {
                     addMoveToBoard(enmemyMove,other,gameBoard);
                     
                     System.out.println("Entrez votre coup : ");
-                    ArrayList<Move> alphaBeta = cpuPlayer.getNextMoveMinMaxAlphaBeta(10,gameBoard,enmemyMove);
+                    ArrayList<Move> alphaBeta = cpuPlayer.getNextMoveMinMaxAlphaBeta(9,gameBoard,enmemyMove);
                     //Move ourMove = moves.get(getRandomIndex(moves));
                     Move ourMove = alphaBeta.get(0);
                     addMoveToBoard(ourMove, player, gameBoard);
@@ -136,25 +169,5 @@ class Client {
     public static void addMoveToBoard(Move move, Piece piece, Board board) {
         board.getSubBoard(move.getRow()/3, move.getCol()/3).play(move, piece);
         board.displayBoard();
-    }
-
-    public static SubBoard determineSubBoard(Move move, Board board) {
-        return board.getSubBoard(move.getRow()%3, move.getCol()%3);
-    }
-
-
-    public static int getRandomIndex(ArrayList<?> list) {
-        // Check if the list is empty
-        if (list.isEmpty()) {
-            return -1; // Or throw an exception, or handle it as you prefer
-        }
-
-        // Create a Random object
-        Random random = new Random();
-
-        // Generate a random index within the bounds of the ArrayList
-        int randomIndex = random.nextInt(list.size());
-
-        return randomIndex;
     }
 }

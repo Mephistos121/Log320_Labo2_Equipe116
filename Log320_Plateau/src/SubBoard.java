@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class SubBoard {
     private Piece[][] subBoard;
@@ -42,7 +43,7 @@ public class SubBoard {
 
     //-------------------- START OF EVALUATION ----------------------------------------
     /**
-     * Section that scores points for the player
+     * Section that scores points for one of the players
      * @param player is the player we want to evaluate the sub-board for
      * @return we return the value of the sub-board
      */
@@ -268,6 +269,10 @@ public class SubBoard {
         }
     }
 
+    public double evaluateFromHash(HashMap<Integer,Double> hash) {
+        return hash.get(boardToIntId(subBoard));
+    }
+
     //-------------------- END OF EVALUATION SECTION ----------------------------------------
 
     //Checks the rows to know if a player has won
@@ -358,6 +363,13 @@ public class SubBoard {
         return possibleMoves;
     }
 
+    public Piece[][] getSubBoard() {return subBoard;}
+
+    public void setSubBoard(Piece[][] subBoard) {
+        this.subBoard = subBoard;
+        updateCheckIfDone();
+    }
+
     public Piece getWinner() {
         return winner;
     }
@@ -380,5 +392,27 @@ public class SubBoard {
 
     public Piece getValueAt(int row, int column){
         return subBoard[row][column];
+    }
+
+    private int boardToIntId(Piece[][] board) {
+        int id = 0;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                int cellValue = pieceToIntId(board[i][j]);
+                id = id * 3 + cellValue;
+            }
+        }
+        return id;
+    }
+
+    private int pieceToIntId(Piece piece) {
+        int value =0;
+        switch (piece) {
+            case O -> value = 2;
+            case X -> value = 1;
+            case EMPTY -> value = 0;
+            case TIE -> value = 0;
+        }
+        return value ;
     }
 }
