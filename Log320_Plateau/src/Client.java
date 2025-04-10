@@ -116,7 +116,7 @@ class Client {
                     addMoveToBoard(enmemyMove,other,gameBoard);
                     
                     System.out.println("Entrez votre coup : ");
-                    ArrayList<Move> alphaBeta = cpuPlayer.getNextMoveMinMaxAlphaBeta(9,gameBoard,enmemyMove);
+                    ArrayList<Move> alphaBeta = cpuPlayer.getNextMoveMinMaxAlphaBeta(gameBoard,enmemyMove);
                     //Move ourMove = moves.get(getRandomIndex(moves));
                     Move ourMove = alphaBeta.get(0);
                     addMoveToBoard(ourMove, player, gameBoard);
