@@ -127,4 +127,19 @@ public class Board {
     public Board clone() {
         return new Board(this.boards.clone());
     }
+
+    public SubBoard getEquivalentSubBoard() {
+        SubBoard subBoard = new SubBoard(3, 3);
+        for(int r = 0; r < 3; r++) {
+            for(int c = 0; c < 3; c++) {
+                Piece p = Piece.EMPTY;
+                if(boards[r][c].getWinner() == Piece.X)
+                    p = Piece.X;
+                else if(boards[r][c].getWinner() == Piece.O)
+                    p = Piece.O;
+                subBoard.setValueAt(r, c, p);
+            }
+        }
+        return subBoard;
+    }
 }

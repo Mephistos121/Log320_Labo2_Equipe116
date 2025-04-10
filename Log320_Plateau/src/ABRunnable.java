@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class ABRunnable implements Runnable{
     private volatile int score;
 
@@ -8,25 +11,42 @@ public class ABRunnable implements Runnable{
     private boolean isMaxing;
     private int alpha;
     private int beta;
+    private List<Move> moves;
+    private ArrayList<Move> bestMoves = new ArrayList<>();
 
-    public ABRunnable(Piece player, int depth, Board board, Move lastPlayedMove, boolean isMaxing, int alpha, int beta) {
+    public ABRunnable(List<Move> moves, Piece player, int depth, Board board, boolean isMaxing, int alpha, int beta) {
         this.player = player;
         this.depth = depth;
         this.board = board;
-        this.lastPlayedMove = lastPlayedMove;
+        //this.lastPlayedMove = lastPlayedMove;
         this.isMaxing = isMaxing;
         this.alpha = alpha;
         this.beta = beta;
+        this.moves = moves;
     }
 
     @Override
     public void run() {
+        int maxScore = Integer.MIN_VALUE;
         CPU cpu = new CPU(player);
 
-        board.playMove(lastPlayedMove, player);
-        this.score = cpu.minMaxAlphaBeta(cpu.getCpuMark()==Piece.O?Piece.X:Piece.O, depth-1, board, lastPlayedMove, !isMaxing, alpha, beta);
-        //System.out.println(score);
-        board.undoMove(lastPlayedMove);
+        for(Move move : moves) {
+            if(move != null) {
+                board.playMove(move, player);
+                this.score = cpu.minMaxAlphaBeta(cpu.getCpuMark() == Piece.O ? Piece.X : Piece.O, depth - 1, board, move, !isMaxing, alpha, beta);
+                //System.out.println(score);
+                board.undoMove(move);
+            }
+
+            if (score == maxScore) {
+                bestMoves.add(move);
+            } else if(score > maxScore) {
+                bestMoves.clear();
+                bestMoves.add(move);
+                maxScore = score;
+            }
+            alpha = Math.max(alpha, score);
+        }
 
     }
 
@@ -34,7 +54,7 @@ public class ABRunnable implements Runnable{
         return score;
     }
 
-    public Move getMove() {
-        return lastPlayedMove;
+    public ArrayList<Move> getMoves() {
+        return bestMoves;
     }
 }
