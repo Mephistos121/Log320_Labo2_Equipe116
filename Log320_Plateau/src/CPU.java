@@ -89,12 +89,13 @@ public class CPU {
     }
 
 
-    public ArrayList<Move> getNextMoveMinMaxAlphaBeta(int maxDepth, Board board, Move lastMove) {
+    public ArrayList<Move> getNextMoveMinMaxAlphaBeta(Board board, Move lastMove) {
         ArrayList<Move> bestMoves = new ArrayList<>();
         double maxScore = WORSE_SCORE; // Start with the worst possible score for the maximizer
         double alpha = WORSE_SCORE;     // Initialize alpha
         double beta = BEST_SCORE;      // Initialize beta
         ArrayList<Move> possibleMoves = board.getValidMoves(lastMove);
+        double time = System.nanoTime()/1e9;
 
         Piece opponentPiece = (cpuMark == Piece.O) ? Piece.X : Piece.O;
 
@@ -103,7 +104,7 @@ public class CPU {
         for (Move move : possibleMoves) {
 
             board.playMove(move, cpuMark);
-            double score = minMaxAlphaBeta(opponentPiece, maxDepth - 1, board, move, false, alpha, beta);
+            double score = minMaxAlphaBeta(opponentPiece, time, board, move, false, alpha, beta);
             board.undoMove(move);
 
             if (score == maxScore) {
@@ -120,10 +121,10 @@ public class CPU {
         return bestMoves;
     }
 
-    private double minMaxAlphaBeta(Piece player, int depth, Board board, Move lastPlayedMove, boolean isMaxing, double alpha, double beta) {
-
+    private double minMaxAlphaBeta(Piece player, double time, Board board, Move lastPlayedMove, boolean isMaxing, double alpha, double beta) {
+        double dTime = System.nanoTime()/1e9 - time;
         Piece winner = board.isDone();
-        if (depth <= 0 || winner != Piece.EMPTY) {
+        if (dTime >= 2.9f || winner != Piece.EMPTY) {
             return evaluateBoard(board, cpuMark, lastPlayedMove);
         }
 
@@ -134,7 +135,7 @@ public class CPU {
             double maxScore = WORSE_SCORE;
             for (Move move : possibleMoves) {
                 board.playMove(move, player);
-                double score = minMaxAlphaBeta(nextPlayer, depth - 1, board, move, false, alpha, beta);
+                double score = minMaxAlphaBeta(nextPlayer, time, board, move, false, alpha, beta);
                 board.undoMove(move);
 
                 maxScore = Math.max(maxScore, score);
@@ -150,7 +151,7 @@ public class CPU {
             double minScore = BEST_SCORE;
             for (Move move : possibleMoves) {
                 board.playMove(move, player);
-                double score = minMaxAlphaBeta(nextPlayer, depth - 1, board, move, true, alpha, beta);
+                double score = minMaxAlphaBeta(nextPlayer, time, board, move, true, alpha, beta);
                 board.undoMove(move);
 
                 minScore = Math.min(minScore, score);

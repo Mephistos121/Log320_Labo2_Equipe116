@@ -103,19 +103,20 @@ class Client {
                     byte[] aBuffer = new byte[16];
 
                     int size = input.available();
-                    //System.out.println("size :" + size);
+                    System.out.println("size :" + size);
                     input.read(aBuffer,0,size);
 
                     String s = new String(aBuffer);
-                    //System.out.println("This is the string received: "+s);
+                    System.out.println("This is the string received: "+s);
 
                     Move enmemyMove = new Move(s);
-                    //System.out.println("Move received :"+ enmemyMove);
+                    System.out.println("Move received :"+ enmemyMove);
                     // check if enemy move is valid here
                     checkEnemyMove(gameBoard,ourLastMove,enmemyMove);
                     addMoveToBoard(enmemyMove,other,gameBoard);
-
-                    ArrayList<Move> alphaBeta = cpuPlayer.getNextMoveMinMaxAlphaBeta(10,gameBoard,enmemyMove);
+                    
+                    System.out.println("Entrez votre coup : ");
+                    ArrayList<Move> alphaBeta = cpuPlayer.getNextMoveMinMaxAlphaBeta(gameBoard,enmemyMove);
                     //Move ourMove = moves.get(getRandomIndex(moves));
                     Move ourMove = alphaBeta.get(0);
                     addMoveToBoard(ourMove, player, gameBoard);
