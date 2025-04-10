@@ -49,10 +49,6 @@ class Client {
         }
 
 
-        System.out.println("Here is the size of the  all possible SubBoards: "+allPossibleSubBoards.size());
-        System.out.println("Here is the size of the x hashmap: "+boardStateHashForX.size());
-        System.out.println("Here is the size of the o hashmap: "+boardStateHashForO.size());
-
         try {
             MyClient = new Socket("localhost", 8888);
             input    = new BufferedInputStream(MyClient.getInputStream());
@@ -108,23 +104,16 @@ class Client {
                     byte[] aBuffer = new byte[16];
 
                     int size = input.available();
-                    System.out.println("size :" + size);
                     input.read(aBuffer,0,size);
-
                     String s = new String(aBuffer);
-                    System.out.println("This is the string received: "+s);
 
                     Move enmemyMove = new Move(s);
-                    System.out.println("Move received :"+ enmemyMove);
+
                     // check if enemy move is valid here
                     checkEnemyMove(gameBoard,ourLastMove,enmemyMove);
                     addMoveToBoard(enmemyMove,other,gameBoard);
                     moveCounter++;
-                    
-                    System.out.println("Entrez votre coup : ");
-                    if (moveCounter > deepThinkingMode){
-                        depth = 10;
-                    }
+
                     ArrayList<Move> alphaBeta = cpuPlayer.getNextMoveMinMaxAlphaBeta(depth,gameBoard,enmemyMove);
                     //Move ourMove = moves.get(getRandomIndex(moves));
                     Move ourMove = alphaBeta.get(0);
@@ -134,7 +123,11 @@ class Client {
                     output.write(ourMove.moveToString().getBytes(),0,2);
                     output.flush();
 
-                    //Can add an other check to go into deep thinking mode
+                    //Checks we do to see if we slow down our pace or not
+                    if (moveCounter > deepThinkingMode){
+                        depth = 10;
+                        System.out.println("Deep thinking mode activated");
+                    }
                 }
 
                 // Le dernier coup est invalide

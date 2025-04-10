@@ -124,7 +124,7 @@ public class CPU {
     private double minMaxAlphaBeta(int depth,Piece player, double time, Board board, Move lastPlayedMove, boolean isMaxing, double alpha, double beta) {
         double dTime = System.nanoTime()/1e9 - time;
         Piece winner = board.isDone();
-        if (dTime >= 3f || winner != Piece.EMPTY || depth < 1) {
+        if (dTime >= 3.4f || winner != Piece.EMPTY || depth < 1) {
             return evaluateBoard(board, cpuMark, lastPlayedMove);
         }
 
