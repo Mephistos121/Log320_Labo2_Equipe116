@@ -6,6 +6,10 @@ import java.util.*;
 class Client {
     public static void main(String[] args) {
 
+        int moveCounter = 0;
+        int deepThinkingMode= 40;
+        int depth = 8;
+
         Socket MyClient;
         BufferedInputStream input;
         BufferedOutputStream output;
@@ -76,6 +80,7 @@ class Client {
                     Move ourMove = new Move(".E5");
                     ourLastMove = ourMove;
                     addMoveToBoard(ourMove, player, gameBoard);
+                    moveCounter++;
 
                     output.write(ourMove.moveToString().getBytes(),0,2);
                     output.flush();
@@ -114,15 +119,22 @@ class Client {
                     // check if enemy move is valid here
                     checkEnemyMove(gameBoard,ourLastMove,enmemyMove);
                     addMoveToBoard(enmemyMove,other,gameBoard);
+                    moveCounter++;
                     
                     System.out.println("Entrez votre coup : ");
-                    ArrayList<Move> alphaBeta = cpuPlayer.getNextMoveMinMaxAlphaBeta(11,gameBoard,enmemyMove);
+                    if (moveCounter > deepThinkingMode){
+                        depth = 10;
+                    }
+                    ArrayList<Move> alphaBeta = cpuPlayer.getNextMoveMinMaxAlphaBeta(depth,gameBoard,enmemyMove);
                     //Move ourMove = moves.get(getRandomIndex(moves));
                     Move ourMove = alphaBeta.get(0);
                     addMoveToBoard(ourMove, player, gameBoard);
+                    moveCounter++;
                     ourLastMove = ourMove;
                     output.write(ourMove.moveToString().getBytes(),0,2);
                     output.flush();
+
+                    //Can add an other check to go into deep thinking mode
                 }
 
                 // Le dernier coup est invalide

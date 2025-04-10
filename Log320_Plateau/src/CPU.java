@@ -18,7 +18,7 @@ public class CPU {
     // Strategic weight of each sub-board
     private static final double[][] EVALUATOR_BIG_BOARD = {
         {1.5,  1, 1.5 },
-        {1, 1.9, 1},
+        {1, 2.1, 1},
         {1.5,  1, 1.5 }
     };
 
@@ -124,7 +124,7 @@ public class CPU {
     private double minMaxAlphaBeta(int depth,Piece player, double time, Board board, Move lastPlayedMove, boolean isMaxing, double alpha, double beta) {
         double dTime = System.nanoTime()/1e9 - time;
         Piece winner = board.isDone();
-        if (dTime >= 2.9f || winner != Piece.EMPTY || depth < 1) {
+        if (dTime >= 3f || winner != Piece.EMPTY || depth < 1) {
             return evaluateBoard(board, cpuMark, lastPlayedMove);
         }
 
