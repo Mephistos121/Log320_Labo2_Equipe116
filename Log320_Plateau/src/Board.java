@@ -76,6 +76,11 @@ public class Board {
         return validMoves;
     }
 
+    //Once the hashmap is done add in evaluation of the board
+    public double evaluate(Piece piece) {
+        return 0;
+    }
+
     public void displayBoard() {
         final String COLOR_DEFAULT = "\u001B[0m";
         final String COLOR_RED = "\u001B[31m";
