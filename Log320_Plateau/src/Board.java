@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Board {
     private SubBoard[][] boards;
@@ -76,9 +77,23 @@ public class Board {
         return validMoves;
     }
 
+    private Piece[][] subBoardToBoard() {
+        Piece[][] board = new Piece[3][3];
+
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                board[i][j] = getSubBoard(i,j).getValueAt(i, j);
+            }
+        }
+
+        return board;
+    }
+
     //Once the hashmap is done add in evaluation of the board
-    public double evaluate(Piece piece) {
-        return 0;
+    public double evaluate(Piece piece, HashMap<Integer,Double> scores) {
+
+        BoardStateHash hasher = new BoardStateHash();
+        return (3*scores.get(hasher.boardToIntId(subBoardToBoard())));
     }
 
     public void displayBoard() {
